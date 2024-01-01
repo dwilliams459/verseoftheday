@@ -5,9 +5,13 @@
     string largeVerseClass = (Model.LargeSize) ? "verse-large" : "";
 }
 
+<style>
+    body { padding-top: 0px; margin-top: 0px;}
+</style>
+
+
 <div class="verse-container">
-    <h2>@ViewData["Title"]</h2>
-    <h3 style="@Model.TextSize">@ViewData["Reference"]</h3>
+    <h3 style="@Model.ReferenceTextSize">@ViewData["Reference"]</h3>
 
     @if (first == null || first.error)
     {
@@ -18,12 +22,12 @@
         <div class="verses">
         @if (@Model.VerseList.Count() > 1)
         {
-            <span class='chapter-number'>@Model.VerseList.FirstOrDefault()?.chapter</span>
+            <span class='chapter-number' style="@Model.TextSize">@Model.VerseList.FirstOrDefault()?.chapter</span>
         }
 
         @foreach (VerseViewModel verse in Model.VerseList)
         {
-            <span class="verse"><sup class="verse-number">@verse.verse</sup>@Html.Raw(verse.text)</span>
+            <span class="verse @largeVerseClass" style="@Model.TextSize"><sup class="verse-number">@verse.verse</sup>@Html.Raw(verse.text)</span>
         }
         </div>
     }

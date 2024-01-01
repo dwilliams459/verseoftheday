@@ -44,6 +44,7 @@ namespace DailyVerse.Domain
 
         public bool LargeSize { get; set; }
         public string TextSize { get; set; }
+        public string ReferenceTextSize { get; set; }
     }
 
     public class VerseViewModel

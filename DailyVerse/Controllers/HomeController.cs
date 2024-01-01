@@ -45,19 +45,19 @@ namespace DailyVerse.Controllers
         }
 
         [HttpGet("/votdl/{size?}")]
-        public async Task<IActionResult> votdLarge(string? size = null)
+        [HttpGet("/l/{size?}")]
+        public async Task<IActionResult> votdLarge(double size = 1)
         {
             ViewData["Title"] = "Verse of the Day";
 
             var verses = await GetVerse("votd");
 
-            if (size != null)
-            {
-                verses.LargeSize = true;
-                verses.TextSize = $"font-size: {size}em";
-            }
+            ViewData["Large"] = "true";
+            verses.LargeSize = true;
+            verses.TextSize = $"font-size: {size}em";
+            verses.ReferenceTextSize = $"font-size: {size * 1.3}em;";
 
-            return View("verse", verses);
+            return View("versel", verses);
         }
 
         [HttpGet("/passage")]
