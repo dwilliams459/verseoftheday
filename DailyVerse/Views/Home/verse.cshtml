@@ -1,0 +1,32 @@
+﻿@{
+    @model PassageViewModel;
+    VerseViewModel? first = Model.VerseList.FirstOrDefault();
+
+    string largeVerseClass = (Model.LargeSize) ? "verse-large" : "";
+}
+<div class="verse-container">
+    @if (!Model.LargeSize)
+    {
+        <h2>@ViewData["Title"]</h2>
+    }
+    <h3 style="@Model.TextSize">@ViewData["Reference"]</h3>
+
+    @if (first == null || first.error)
+    {
+        <div class="alert alert-danger">Error</div>
+    }
+    else
+    {
+        <div class="verses">
+        @if (@Model.VerseList.Count() > 1)
+        {
+            <span class='chapter-number' style="@Model.TextSize">@Model.VerseList.FirstOrDefault()?.chapter</span>
+        }
+
+        @foreach (VerseViewModel verse in Model.VerseList)
+        {
+            <span class="verse @largeVerseClass" style="@Model.TextSize"><sup class="verse-number">@verse.verse</sup>@Html.Raw(verse.text)</span>
+        }
+        </div>
+    }
+</div>

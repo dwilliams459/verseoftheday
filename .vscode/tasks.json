@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "dotnet",
+			"task": "build f:/Projects/Sandbox/DailyVerse2/DailyVerse/DailyVerse.csproj",
+			"file": "f:/Projects/Sandbox/DailyVerse2/DailyVerse/DailyVerse.csproj",  
+			"group": "build",
+			"problemMatcher": [],
+			"label": "build"
+		}
+	]
+}
