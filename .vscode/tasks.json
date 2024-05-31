@@ -3,8 +3,8 @@
 	"tasks": [
 		{
 			"type": "dotnet",
-			"task": "build f:/Projects/Sandbox/DailyVerse2/DailyVerse/DailyVerse.csproj",
-			"file": "f:/Projects/Sandbox/DailyVerse2/DailyVerse/DailyVerse.csproj",  
+			"task": "build F:/DailyVerse/verseoftheday/DailyVerse/DailyVerse.csproj",
+			"file": "F:/DailyVerse/verseoftheday/DailyVerse/DailyVerse.csproj",  
 			"group": "build",
 			"problemMatcher": [],
 			"label": "build"

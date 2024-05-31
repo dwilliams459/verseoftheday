@@ -9,8 +9,8 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/DailyVerse/bin/Debug/net7.0/DailyVerse.dll",
-            "args": [ "URLs", "http://localhost:5000" ],
+            "program": "${workspaceFolder}/dailyverse/bin/Debug/net8.0/dailyverse.dll",
+            "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
             "serverReadyAction": {
@@ -24,7 +24,5 @@
                 "/Views": "${workspaceFolder}/Views"
             }
         }
-
-
     ]
 }

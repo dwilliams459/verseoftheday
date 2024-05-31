@@ -57,5 +57,8 @@ namespace DailyVerse.Domain
         public bool error { get; set; }
         public string errorMessage { get; set; }
 
+        public string Reference() => $"{bookname} {chapter}:{verse}";
+        public string FullText() => $"{text.Trim()}  -{bookname} {chapter}:{verse}".Replace("   ", "");
+
     }
 }

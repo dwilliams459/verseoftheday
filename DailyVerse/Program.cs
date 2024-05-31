@@ -1,3 +1,5 @@
+using DailyVerse.Service;
+
 public class Program
 {
     private static void Main(string[] args)
@@ -13,6 +15,8 @@ public class Program
             options.CheckConsentNeeded = context => true;
             options.MinimumSameSitePolicy = SameSiteMode.None;
         });
+
+        builder.Services.AddScoped<VersesService>();
 
         var app = builder.Build();
 

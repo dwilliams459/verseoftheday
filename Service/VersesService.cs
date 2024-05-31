@@ -11,7 +11,7 @@ namespace DailyVerse.Service
 {
     public class VersesService
     {
-        public async Task<List<VerseViewModel>> GetVerseAsync(string reference)
+        public async Task<List<VerseViewModel>> GetVerseAsync(string reference, bool removeFormatting = true)
         {
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri("https://labs.bible.org");
@@ -29,9 +29,13 @@ namespace DailyVerse.Service
                 {
                     var v = await response.Content.ReadAsStringAsync();
                     verses = JsonConvert.DeserializeObject<List<VerseViewModel>>(v);
-                    foreach (var verse in verses)
+
+                    if (removeFormatting)
                     {
-                        verse.text = verse.text.Replace("<b>", "").Replace("</b>", "");
+                        foreach (var verse in verses)
+                        {
+                            verse.text = verse.text = verse.text.Replace("<b>", "").Replace("</b>", "");
+                        }
                     }
                 }
             }
@@ -55,6 +59,22 @@ namespace DailyVerse.Service
             }
 
             return passage;
+        }
+
+        public bool isValidApiCode(string apiCode)
+        {
+            int apiDate = DateTime.Now.DayOfYear;
+
+            if (int.TryParse(apiCode.Replace("aaca-", ""), out int apiNumericCode))
+            {
+                apiNumericCode = (int)Math.Round((double)(apiNumericCode - 1515) / 1155);
+                if (apiDate -1 <= apiNumericCode && apiNumericCode <= apiDate + 1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
