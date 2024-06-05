@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using DailyVerse.Domain;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using VerseProviders;
 
@@ -12,6 +15,13 @@ namespace DailyVerse.Service
 {
     public class NetBibleVersesService : IVerseProvider
     {
+        private ILogger<NetBibleVersesService> _logger;
+
+        public NetBibleVersesService(ILogger<NetBibleVersesService> logger)
+        {
+            _logger = logger;
+        }
+
         public async Task<List<VerseViewModel>> GetVerseAsync(string reference, bool removeFormatting = true)
         {
             HttpClient client = new HttpClient();
@@ -48,7 +58,7 @@ namespace DailyVerse.Service
             return verses ?? new List<VerseViewModel>();
         }
 
-        public async Task<PassageViewModel> GetPassageAsync(string reference, bool includePassageReference = false)
+        public async Task<PassageViewModel> GetPassageAsync(string reference, bool includePassageReference = true)
         {
             var passage = new PassageViewModel();
             passage.VerseList = await GetVerseAsync(reference);
@@ -59,24 +69,49 @@ namespace DailyVerse.Service
                 passage.ErrorMessage = passage.VerseList.FirstOrDefault().errorMessage;
             }
 
+            // Set reference
+            if (includePassageReference)
+            {
+                var firstVerse = passage.VerseList.FirstOrDefault();
+                passage.Reference = $"{firstVerse?.bookname} {firstVerse?.chapter}";
+                passage.Reference = (string.IsNullOrWhiteSpace(firstVerse?.verse)) ? passage.Reference : $"{passage.Reference}:{firstVerse?.verse}";
+
+                if (passage.VerseList.Count() > 1)
+                {
+                    var lastVerse = passage.VerseList.LastOrDefault();
+                    passage.Reference = $"{passage.Reference}-{lastVerse?.verse}";
+                }
+            }
+
             return passage;
+        }
+
+        public async Task<PassageViewModel> GetVotdAsync(bool includePassageReference = true)
+        {
+            return await GetPassageAsync("votd", includePassageReference);
         }
 
         public bool isValidApiCode(string apiCode)
         {
-            return (String.IsNullOrWhiteSpace(apiCode)) ? false : true;
-
-            int apiDate = DateTime.Now.DayOfYear;
-
-            if (int.TryParse(apiCode.Replace("aaca-", ""), out int apiNumericCode))
+            try
             {
-                apiNumericCode = (int)Math.Round((double)(apiNumericCode - 1515) / 1155);
-                if (apiDate -1 <= apiNumericCode && apiNumericCode <= apiDate + 1)
+                // Get the date from the api code
+                var dateString = apiCode.Substring(apiCode.IndexOf("-") + 1);
+                var apiCodeDate = DateTime.ParseExact(dateString, "MMddyyyy", CultureInfo.InvariantCulture);
+    
+                if (apiCodeDate > DateTime.Now.AddDays(-2) && apiCodeDate < DateTime.Now.AddDays(2))
                 {
+                    _logger.LogDebug("Net Bible Api Code validated");
                     return true;
                 }
             }
+            catch (System.Exception)
+            {
+                _logger.LogDebug("Net Bible Api Code not valid");
+                return false;
+            }
 
+            _logger.LogDebug("Net Bible Api Code not valid");
             return false;
         }
     }

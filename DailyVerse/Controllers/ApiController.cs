@@ -25,17 +25,27 @@ public class ApiController : Controller
 
     [HttpGet("api/votd/{apicode}")]
     [AllowAnonymous]
-    public async Task<IActionResult> votd(string apicode)
+    public async Task<IActionResult> votd(string apicode, [FromQuery(Name = "v")] string version = "esv")
     {
         PassageViewModel verses = new PassageViewModel();
         if (!verseService.isValidApiCode(apicode))
         {
             return Unauthorized();
         }
-        
-        var verseList = await verseService.GetVerseAsync("votd", true);
 
-        return Ok(verseList.FirstOrDefault()?.FullText());
+        var passage = new PassageViewModel();
+        if (version != "esv")
+        {
+            if (!verseService.isValidApiCode(apicode)) { return Unauthorized(); }
+            passage = await verseService.GetVotdAsync(true);
+        }
+        else
+        {
+            if (!_esvVerseService.isValidApiCode(apicode)) { return Unauthorized(); }
+            passage = await _esvVerseService.GetVotdAsync(true);
+        }
+
+        return Ok(passage.JoinedVerses(true));
     }
 
     /// <summary>
@@ -44,20 +54,27 @@ public class ApiController : Controller
     /// <param name="apiCode">The API code used for authorization.</param>
     /// <param name="reference">The reference of the Bible verse.</param>
     /// <returns>The passage of the Bible verse as a string.</returns>
-    [HttpGet("api/passage/{apiCode}/{reference}")]
+    [HttpGet("api/passage/")]
     [AllowAnonymous]
-    public async Task<IActionResult> Passage(string apiCode, string reference)
+    public async Task<IActionResult> Passage([FromQuery(Name = "a")] string? apiCode, [FromQuery(Name = "r")] string reference, 
+        [FromQuery(Name = "ir")] bool includeReference = true,  [FromQuery(Name = "v")] string version = "esv")
     {
         try
         {
-            if (!_esvVerseService.isValidApiCode(apiCode))
-            {
-                return Unauthorized();
-            }
-    
-            var passage = await _verseProvider.GetPassageAsync(reference.Replace('+', ' '), true);
-    
-            return Ok(passage.JoinedVerses(true)); 
+        var passage = new PassageViewModel();
+        if (version != "esv")
+        {
+            if (!verseService.isValidApiCode(apiCode)) { return Unauthorized(); }
+            passage = await verseService.GetPassageAsync(reference, includeReference);
+        }
+        else
+        {
+            if (!_esvVerseService.isValidApiCode(apiCode)) { return Unauthorized(); }
+            passage = await _esvVerseService.GetPassageAsync(reference, includeReference);
+        }
+
+
+            return Ok(passage.JoinedVerses(includeReference));
         }
         catch (System.Exception ex)
         {

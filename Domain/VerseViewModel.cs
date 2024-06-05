@@ -21,7 +21,11 @@ namespace DailyVerse.Domain
         public bool Error { get; set; }
         public string ErrorMessage { get; set; }
 
-        public string JoinedVerses(bool indludeReference = false) => $"{string.Join(" ", VerseList.Select(v => v.text))}{(indludeReference ? $" -{Reference}" : "")}"; 
+        public string JoinedVerses(bool indludeReference = false) 
+        {
+            var joinedVerses = $"{string.Join(" ", VerseList.Select(v => v.text.Trim()))}";
+            return (indludeReference && !string.IsNullOrWhiteSpace(Reference)) ? $"{joinedVerses}  -{Reference}" : joinedVerses;
+        }  
 
         public string? RawPassageText { get; set; }
         

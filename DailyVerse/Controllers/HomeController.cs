@@ -17,10 +17,11 @@ namespace DailyVerse.Controllers
 {
     public class HomeController : Controller
     {
-        private NetBibleVersesService verseService { get; set; }
-        public HomeController()
+        private readonly NetBibleVersesService _netVerseService;
+
+        public HomeController(NetBibleVersesService verseService)
         {
-            verseService = new NetBibleVersesService();
+            this._netVerseService = verseService;
         }
 
         [HttpGet("")]
@@ -85,7 +86,7 @@ namespace DailyVerse.Controllers
         private async Task<PassageViewModel> GetVerse(string reference)
         {
             PassageViewModel verses = new PassageViewModel();
-            verses.VerseList = await verseService.GetVerseAsync(reference);
+            verses.VerseList = await _netVerseService.GetVerseAsync(reference);
             ViewData["Reference"] = BuildReference(verses.VerseList.FirstOrDefault());
             return verses;
         }
@@ -104,7 +105,7 @@ namespace DailyVerse.Controllers
             }
             else
             {
-                verses.VerseList = await verseService.GetVerseAsync(passage);
+                verses.VerseList = await _netVerseService.GetVerseAsync(passage);
                 ViewData["Reference"] = BuildReference(verses);
                 return verses;
             }

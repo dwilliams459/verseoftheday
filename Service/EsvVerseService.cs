@@ -1,6 +1,8 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 using DailyVerse.Domain;
+using DailyVerse.Service;
 using Domain;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -13,13 +15,15 @@ public class EsvVerseService : IVerseProvider
 {
     private IConfiguration _config;
     private readonly string? _esvAuthToken;
+    private readonly NetBibleVersesService _netBibleService;
     private readonly HttpClient _httpClient;
     private readonly ILogger<EsvVerseService> _logger;
 
-    public EsvVerseService(IConfiguration config, ILogger<EsvVerseService> logger)
+    public EsvVerseService(IConfiguration config, ILogger<EsvVerseService> logger, NetBibleVersesService netBibleVersesService)
     {
         _config = config;
         _esvAuthToken = Environment.GetEnvironmentVariable("EsvAuthenticationToken");
+        _netBibleService = netBibleVersesService;
 
         _httpClient = new HttpClient();
         _httpClient.DefaultRequestHeaders.Add("Authorization", $"Token {_esvAuthToken}");
@@ -27,10 +31,17 @@ public class EsvVerseService : IVerseProvider
         _logger.LogInformation($"ESV Api: {_esvAuthToken}");
     }
 
-    public async Task<PassageViewModel> GetPassageAsync(string reference, bool includePassageReference = false)
+    public async Task<PassageViewModel> GetPassageAsync(string reference, bool includePassageReference = true)
     {
-        var parameters = "&indent-poetry=false&include-headings=false&include-footnotes=false&include-verse-numbers=true&include-short-copyright=true&include-passage-references={includePassageReference.ToString()}";
-        string url = $"https://api.esv.org/v3/passage/text/?q={Uri.EscapeDataString(reference)}{parameters}";
+        var parameters = new StringBuilder();
+        parameters.Append($"&indent-poetry=false");
+        parameters.Append($"&include-headings=false");
+        parameters.Append($"&include-footnotes=false");
+        parameters.Append($"&include-verse-numbers=true");
+        parameters.Append($"&include-short-copyright=true");
+        parameters.Append($"&include-passage-references={includePassageReference.ToString()}");
+
+        string url = $"https://api.esv.org/v3/passage/text/?q={Uri.EscapeDataString(reference)}{parameters.ToString()}";
 
         HttpResponseMessage response = await _httpClient.GetAsync(url);
 
@@ -57,8 +68,26 @@ public class EsvVerseService : IVerseProvider
 
     public bool isValidApiCode(string apiCode)
     {
-        _logger.LogInformation("Esv Api Code validated");
-        return string.IsNullOrWhiteSpace(apiCode) ? false : true;
+        try
+        {
+            // Get the date from the api code
+            var dateString = apiCode.Substring(apiCode.IndexOf("-") + 1);
+            var apiCodeDate = DateTime.ParseExact(dateString, "MMddyyyy", CultureInfo.InvariantCulture);
+    
+            if (apiCodeDate > DateTime.Now.AddDays(-2) && apiCodeDate < DateTime.Now.AddDays(2))
+            {
+                _logger.LogDebug("Esv Api Code validated");
+                return true;
+            }
+        }
+        catch (System.Exception)
+        {
+            _logger.LogDebug("Esv Api Code not valid");
+            return false;
+        }
+
+        _logger.LogDebug("Esv Api Code not valid");
+        return false;
     }
 
     /// <summary>
@@ -107,5 +136,12 @@ public class EsvVerseService : IVerseProvider
         passage.VerseList = verseList;
         passage.Reference = reference;
         return passage;
+    }
+
+    public async Task<PassageViewModel> GetVotdAsync(bool includePassageReference = true)
+    {
+        var passage = await _netBibleService.GetVotdAsync(includePassageReference);
+
+        return await GetPassageAsync(passage.Reference, includePassageReference);
     }
 }
