@@ -22,7 +22,8 @@ public class Program
         builder.Services.AddScoped<EsvVerseService>();
 
         var config = builder.Configuration;
-        config.AddJsonFile("keys.json", optional: true, reloadOnChange: false);
+        //config.AddJsonFile("keys.json", optional: true, reloadOnChange: false);
+        config.AddEnvironmentVariables();
 
         var app = builder.Build();
 
