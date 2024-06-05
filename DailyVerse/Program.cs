@@ -9,7 +9,8 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddControllersWithViews();
-        builder.Logging.AddConsole();
+
+        builder.Logging.ClearProviders().AddConsole().AddAzureWebAppDiagnostics();
 
         builder.Services.Configure<CookiePolicyOptions>(options =>
         {
@@ -26,6 +27,12 @@ public class Program
         config.AddEnvironmentVariables();
 
         var app = builder.Build();
+
+        // Get a logger
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
+        // Log a message
+        logger.LogInformation("Verse of the Day has started.");
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
