@@ -1,4 +1,5 @@
 using DailyVerse.Service;
+using Service;
 
 public class Program
 {
@@ -16,7 +17,11 @@ public class Program
             options.MinimumSameSitePolicy = SameSiteMode.None;
         });
 
-        builder.Services.AddScoped<VersesService>();
+        builder.Services.AddScoped<NetBibleVersesService>();
+        builder.Services.AddScoped<EsvVerseService>();
+
+        var config = builder.Configuration;
+        config.AddJsonFile("keys.json", optional: true, reloadOnChange: false);
 
         var app = builder.Build();
 
