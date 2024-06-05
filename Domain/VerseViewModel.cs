@@ -18,6 +18,10 @@ namespace DailyVerse.Domain
         public string LastVerse => (VerseList.Count() > 0) ? VerseList?.LastOrDefault()?.verse : string.Empty;
         public bool Error { get; set; }
         public string ErrorMessage { get; set; }
+
+        public string JoinedVerses() => string.Join(" ", VerseList.Select(v => v.text)); 
+
+        public string? RawPassageText { get; set; }
         
         private string _format;
         public string Format

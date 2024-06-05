@@ -6,10 +6,11 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using DailyVerse.Domain;
 using Newtonsoft.Json;
+using VerseProviders;
 
 namespace DailyVerse.Service
 {
-    public class VersesService
+    public class NetBibleVersesService : IVerseProvider
     {
         public async Task<List<VerseViewModel>> GetVerseAsync(string reference, bool removeFormatting = true)
         {
@@ -47,7 +48,7 @@ namespace DailyVerse.Service
             return verses ?? new List<VerseViewModel>();
         }
 
-        public async Task<PassageViewModel> GetPassageAsync(string reference)
+        public async Task<PassageViewModel> GetPassageAsync(string reference, bool includePassageReference = false)
         {
             var passage = new PassageViewModel();
             passage.VerseList = await GetVerseAsync(reference);
@@ -63,6 +64,8 @@ namespace DailyVerse.Service
 
         public bool isValidApiCode(string apiCode)
         {
+            return (String.IsNullOrWhiteSpace(apiCode)) ? false : true;
+
             int apiDate = DateTime.Now.DayOfYear;
 
             if (int.TryParse(apiCode.Replace("aaca-", ""), out int apiNumericCode))

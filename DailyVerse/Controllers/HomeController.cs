@@ -17,10 +17,10 @@ namespace DailyVerse.Controllers
 {
     public class HomeController : Controller
     {
-        private VersesService verseService { get; set; }
+        private NetBibleVersesService verseService { get; set; }
         public HomeController()
         {
-            verseService = new VersesService();
+            verseService = new NetBibleVersesService();
         }
 
         [HttpGet("")]
