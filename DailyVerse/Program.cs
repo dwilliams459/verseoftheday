@@ -9,6 +9,7 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddControllersWithViews();
+        builder.Logging.AddConsole();
 
         builder.Services.Configure<CookiePolicyOptions>(options =>
         {

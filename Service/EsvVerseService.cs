@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using DailyVerse.Domain;
 using Domain;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using VerseProviders;
 
@@ -13,14 +14,17 @@ public class EsvVerseService : IVerseProvider
     private IConfiguration _config;
     private readonly string? _esvAuthToken;
     private readonly HttpClient _httpClient;
+    private readonly ILogger<EsvVerseService> _logger;
 
-    public EsvVerseService(IConfiguration config)
+    public EsvVerseService(IConfiguration config, ILogger<EsvVerseService> logger)
     {
         _config = config;
         _esvAuthToken = _config.GetValue<string>("EsvAuthenticationToken");
 
         _httpClient = new HttpClient();
         _httpClient.DefaultRequestHeaders.Add("Authorization", $"Token {_esvAuthToken}");
+        _logger = logger;
+        _logger.LogInformation($"ESV Api: {_esvAuthToken}");
     }
 
     public async Task<PassageViewModel> GetPassageAsync(string reference, bool includePassageReference = false)
@@ -34,10 +38,13 @@ public class EsvVerseService : IVerseProvider
         {
             string esvPassageJson = await response.Content.ReadAsStringAsync();
             EsvPassage esvPassage = JsonConvert.DeserializeObject<EsvPassage>(esvPassageJson);
+            _logger.LogDebug($"Request to ESV API succeeded with status code {response.StatusCode}");
+
             return ConvertEsvPassageToPassageViewModel(esvPassage);
         }
         else
         {
+            _logger.LogError($"Request to ESV API failed with status code {response.StatusCode}");
             throw new HttpRequestException($"Request to ESV API failed with status code {response.StatusCode}");
         }
     }
@@ -50,6 +57,7 @@ public class EsvVerseService : IVerseProvider
 
     public bool isValidApiCode(string apiCode)
     {
+        _logger.LogInformation("Esv Api Code validated");
         return string.IsNullOrWhiteSpace(apiCode) ? false : true;
     }
 
@@ -70,8 +78,8 @@ public class EsvVerseService : IVerseProvider
         var verseList = new List<VerseViewModel>();
         
         // Get book name from first verse
-        var bookname = verses[0].Replace("[", "").Replace("]", "").Trim();
-        bookname = Regex.Replace(bookname, @"\d+$", "").Trim();
+        var reference = verses[0].Replace("[", "").Replace("]", "").Trim();
+        var bookname = Regex.Replace(reference, @"(\d*:*\d+)$", "").Trim();
 
         // For each verse, create a VerseViewModel object and add to list
         int i = 0;
@@ -97,6 +105,7 @@ public class EsvVerseService : IVerseProvider
         }
 
         passage.VerseList = verseList;
+        passage.Reference = reference;
         return passage;
     }
 }

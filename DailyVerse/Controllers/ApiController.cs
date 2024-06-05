@@ -13,12 +13,14 @@ public class ApiController : Controller
     private readonly NetBibleVersesService verseService;
     private readonly EsvVerseService _esvVerseService;
     private readonly IVerseProvider _verseProvider;
+    private readonly ILogger<ApiController> _logger;
 
-    public ApiController(NetBibleVersesService versesService, EsvVerseService esvVerseService)
+    public ApiController(NetBibleVersesService versesService, EsvVerseService esvVerseService, ILogger<ApiController> logger)
     {
         verseService = versesService;
         _esvVerseService = esvVerseService;
         _verseProvider = esvVerseService;
+        _logger = logger;
     }
 
     [HttpGet("api/votd/{apicode}")]
@@ -46,13 +48,21 @@ public class ApiController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Passage(string apiCode, string reference)
     {
-        if (!_esvVerseService.isValidApiCode(apiCode))
+        try
         {
-            return Unauthorized();
+            if (!_esvVerseService.isValidApiCode(apiCode))
+            {
+                return Unauthorized();
+            }
+    
+            var passage = await _verseProvider.GetPassageAsync(reference.Replace('+', ' '), true);
+    
+            return Ok(passage.JoinedVerses(true)); 
         }
-
-        var passage = await _verseProvider.GetPassageAsync(reference.Replace('+', ' '), true);
-
-        return Ok(passage.JoinedVerses()); 
+        catch (System.Exception ex)
+        {
+            _logger.LogError(ex, "Error Getting API passage");
+            throw;
+        }
     }
 }

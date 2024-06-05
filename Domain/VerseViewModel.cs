@@ -16,10 +16,12 @@ namespace DailyVerse.Domain
         public string Chapter => VerseList?.FirstOrDefault()?.chapter;
         public string FirstVerse => VerseList?.FirstOrDefault()?.verse;
         public string LastVerse => (VerseList.Count() > 0) ? VerseList?.LastOrDefault()?.verse : string.Empty;
+        public string Reference { get; set; }
+
         public bool Error { get; set; }
         public string ErrorMessage { get; set; }
 
-        public string JoinedVerses() => string.Join(" ", VerseList.Select(v => v.text)); 
+        public string JoinedVerses(bool indludeReference = false) => $"{string.Join(" ", VerseList.Select(v => v.text))}{(indludeReference ? $" -{Reference}" : "")}"; 
 
         public string? RawPassageText { get; set; }
         
