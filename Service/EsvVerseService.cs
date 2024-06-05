@@ -19,7 +19,7 @@ public class EsvVerseService : IVerseProvider
     public EsvVerseService(IConfiguration config, ILogger<EsvVerseService> logger)
     {
         _config = config;
-        _esvAuthToken = _config.GetValue<string>("EsvAuthenticationToken");
+        _esvAuthToken = Environment.GetEnvironmentVariable("EsvAuthenticationToken");
 
         _httpClient = new HttpClient();
         _httpClient.DefaultRequestHeaders.Add("Authorization", $"Token {_esvAuthToken}");
