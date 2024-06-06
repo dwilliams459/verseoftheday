@@ -10,7 +10,6 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.Text;
 using DailyVerse.Service;
-using DailyVerse.Service;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DailyVerse.Controllers
@@ -18,10 +17,12 @@ namespace DailyVerse.Controllers
     public class HomeController : Controller
     {
         private readonly NetBibleVersesService _netVerseService;
+        private readonly EsvVerseService _esvService;
 
-        public HomeController(NetBibleVersesService verseService)
+        public HomeController(NetBibleVersesService verseService, EsvVerseService esvVerseService)
         {
             this._netVerseService = verseService;
+            _esvService = esvVerseService;
         }
 
         [HttpGet("")]
@@ -32,7 +33,7 @@ namespace DailyVerse.Controllers
         {
             ViewData["Title"] = "Verse of the Day";
 
-            var verses = await GetVerse("votd");
+            var verses = await _esvService.GetVotdAsync(false); // GetVerse("votd");
             verses.LargeSize = false;
 
             return View("verse", verses);
@@ -42,7 +43,7 @@ namespace DailyVerse.Controllers
         public async Task<IActionResult> Random()
         {
             ViewData["Title"] = "Random Verse";
-            return View("verse", await GetVerse("random"));
+            return View("verse", await _netVerseService.GetPassageAsync("random", true));
         }
 
         [HttpGet("/votdl/{size?}")]
@@ -51,7 +52,7 @@ namespace DailyVerse.Controllers
         {
             ViewData["Title"] = "Verse of the Day";
 
-            var verses = await GetVerse("votd");
+            var verses = await _esvService.GetVotdAsync(false); // GetVerse("votd");
 
             ViewData["Large"] = "true";
             verses.LargeSize = true;
@@ -83,31 +84,24 @@ namespace DailyVerse.Controllers
             return View("passage", await GetPassage(passage, format));
         }
 
-        private async Task<PassageViewModel> GetVerse(string reference)
-        {
-            PassageViewModel verses = new PassageViewModel();
-            verses.VerseList = await _netVerseService.GetVerseAsync(reference);
-            ViewData["Reference"] = BuildReference(verses.VerseList.FirstOrDefault());
-            return verses;
-        }
-
         private async Task<PassageViewModel> GetPassage(string passage = "", string format = "")
         {
-            var verses = new PassageViewModel();
+            var passageViewModel = new PassageViewModel(format);
 
             ViewData["Title"] = "Passage";
-            ViewData["Passage"] = passage;
-            verses.Format = format;
+            passageViewModel.Format = format;
 
             if (string.IsNullOrWhiteSpace(passage))
             {
-                return verses;
+                return passageViewModel;
             }
             else
             {
-                verses.VerseList = await _netVerseService.GetVerseAsync(passage);
-                ViewData["Reference"] = BuildReference(verses);
-                return verses;
+                passageViewModel = await _esvService.GetPassageAsync(passage);
+                passageViewModel.Format = format;
+                ViewData["Reference"] = passageViewModel.Reference;
+                ViewData["Passage"] = passageViewModel.Reference;
+                return passageViewModel;
             }
         }
 
@@ -137,6 +131,12 @@ namespace DailyVerse.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [HttpGet("home/copyright")]
+        public IActionResult Copyright()
+        {
+            return View();
         }
     }
 }

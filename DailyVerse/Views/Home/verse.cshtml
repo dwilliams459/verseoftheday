@@ -16,15 +16,16 @@
     else
     {
         <div class="verses">
-        @if (@Model.VerseList.Count() > 1)
-        {
-            <span class='chapter-number'>@Model.VerseList.FirstOrDefault()?.chapter</span>
-        }
+            @if (@Model.VerseList.Count() > 1)
+            {
+                <span class='chapter-number'>@Model.VerseList.FirstOrDefault()?.chapter</span>
+            }
 
-        @foreach (VerseViewModel verse in Model.VerseList)
-        {
-            <span class="verse"><sup class="verse-number">@verse.verse</sup>@Html.Raw(verse.text)</span>
-        }
+            @foreach (VerseViewModel verse in Model.VerseList)
+            {
+                <span class="verse"><sup class="verse-number">@verse.verse</sup>@verse.text</span>
+            }
+            <span>  -@Model.Reference</span>
         </div>
     }
 </div>
