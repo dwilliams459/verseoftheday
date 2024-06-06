@@ -3,7 +3,6 @@ using DailyVerse.Domain;
 using DailyVerse.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service;
 using VerseProviders;
 
 namespace DailyVerse.Controllers;

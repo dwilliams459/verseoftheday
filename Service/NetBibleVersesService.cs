@@ -45,7 +45,7 @@ namespace DailyVerse.Service
                     {
                         foreach (var verse in verses)
                         {
-                            verse.text = verse.text = verse.text.Replace("<b>", "").Replace("</b>", "");
+                            verse.text = verse.text.Replace("<b>", "").Replace("</b>", "");
                         }
                     }
                 }
@@ -69,20 +69,19 @@ namespace DailyVerse.Service
                 passage.ErrorMessage = passage.VerseList.FirstOrDefault().errorMessage;
             }
 
-            // Set reference
-            if (includePassageReference)
-            {
-                var firstVerse = passage.VerseList.FirstOrDefault();
-                passage.Reference = $"{firstVerse?.bookname} {firstVerse?.chapter}";
-                passage.Reference = (string.IsNullOrWhiteSpace(firstVerse?.verse)) ? passage.Reference : $"{passage.Reference}:{firstVerse?.verse}";
+            var firstVerse = passage.VerseList.FirstOrDefault();
 
-                if (passage.VerseList.Count() > 1)
-                {
-                    var lastVerse = passage.VerseList.LastOrDefault();
-                    passage.Reference = $"{passage.Reference}-{lastVerse?.verse}";
-                }
+            // Set reference
+            passage.Reference = $"{firstVerse?.bookname} {firstVerse?.chapter}";
+            passage.Reference = (string.IsNullOrWhiteSpace(firstVerse?.verse)) ? passage.Reference : $"{passage.Reference}:{firstVerse?.verse}";
+
+            if (passage.VerseList.Count() > 1)
+            {
+                var lastVerse = passage.VerseList.LastOrDefault();
+                passage.Reference = $"{passage.Reference}-{lastVerse?.verse}";
             }
 
+            passage.Translation = "Net Bible";
             return passage;
         }
 
@@ -98,7 +97,7 @@ namespace DailyVerse.Service
                 // Get the date from the api code
                 var dateString = apiCode.Substring(apiCode.IndexOf("-") + 1);
                 var apiCodeDate = DateTime.ParseExact(dateString, "MMddyyyy", CultureInfo.InvariantCulture);
-    
+
                 if (apiCodeDate > DateTime.Now.AddDays(-2) && apiCodeDate < DateTime.Now.AddDays(2))
                 {
                     _logger.LogDebug("Net Bible Api Code validated");

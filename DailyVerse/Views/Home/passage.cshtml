@@ -2,16 +2,22 @@
     @model PassageViewModel
 }
 
+<style>
+    .form-spacing {
+        margin-right: 10px;
+    }
+</style>
+
 <div class="verse-container">
     <form asp-controller="Home" asp-action="passagePost" method="post">
         <div class="input-group" style="margin-top: 12px;">
-            <input type="text" name="passage" id="passage" class='form-control' value='@ViewData["passage"]' placeholder="Enter passage like John 3:16" />
-            <span class="input-group-btn">
+            <input type="text" name="passage" id="passage" class='form-control form-spacing' value='@ViewData["passage"]' placeholder="Enter passage like John 3:16" />
+            <span class="input-group-btn form-spacing">
                 <button type="submit" class="btn btn-primary">Go</button>
             </span>         
             <!-- <div class="input-group-addon"><input type="checkbox" name="manuscript" value='true' 
                 @ViewData["manuscriptchecked"]> Manuscript</div> -->
-            <div class="input-group-addon">
+            <div class="input-group-addon form-spacing">
                 <select id="format" name="format" asp-for="Format" asp-items="Model.DisplayStyles" class="custom-select" ></select>
             </div>
         </div>

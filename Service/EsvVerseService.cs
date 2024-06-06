@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using VerseProviders;
 
-namespace Service;
+namespace DailyVerse.Service;
 
 public class EsvVerseService : IVerseProvider
 {
@@ -39,7 +39,7 @@ public class EsvVerseService : IVerseProvider
         parameters.Append($"&include-footnotes=false");
         parameters.Append($"&include-verse-numbers=true");
         parameters.Append($"&include-short-copyright=true");
-        parameters.Append($"&include-passage-references={includePassageReference.ToString()}");
+        parameters.Append($"&include-passage-references=true");
 
         string url = $"https://api.esv.org/v3/passage/text/?q={Uri.EscapeDataString(reference)}{parameters.ToString()}";
 
@@ -108,7 +108,10 @@ public class EsvVerseService : IVerseProvider
         
         // Get book name from first verse
         var reference = verses[0].Replace("[", "").Replace("]", "").Trim();
-        var bookname = Regex.Replace(reference, @"(\d*:*\d+)$", "").Trim();
+        //var bookname = Regex.Replace(reference, @"(\d*:*\d+)$", "").Trim();
+        var booknameRegex = new Regex(@"^\d+\s+(\w+)");
+        var booknameMatch = booknameRegex.Match(reference);
+        var bookname = booknameMatch.Groups[1].Value;
 
         // For each verse, create a VerseViewModel object and add to list
         int i = 0;
@@ -135,6 +138,7 @@ public class EsvVerseService : IVerseProvider
 
         passage.VerseList = verseList;
         passage.Reference = reference;
+        passage.Translation = "ESV";
         return passage;
     }
 

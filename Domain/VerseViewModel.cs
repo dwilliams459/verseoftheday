@@ -21,19 +21,35 @@ namespace DailyVerse.Domain
         public bool Error { get; set; }
         public string ErrorMessage { get; set; }
 
-        public string JoinedVerses(bool indludeReference = false) 
+        public string JoinedVerses(bool indludeReference = false)
         {
             var joinedVerses = $"{string.Join(" ", VerseList.Select(v => v.text.Trim()))}";
             return (indludeReference && !string.IsNullOrWhiteSpace(Reference)) ? $"{joinedVerses}  -{Reference}" : joinedVerses;
-        }  
+        }
 
         public string? RawPassageText { get; set; }
-        
+
+        public string GetFullReference()
+        {
+            var firstVerse = VerseList.FirstOrDefault();
+            
+            string reference = $"{firstVerse?.bookname} {firstVerse?.chapter}";
+            reference = (string.IsNullOrWhiteSpace(firstVerse?.verse)) ? reference : $"{reference}:{firstVerse?.verse}";
+
+            if (VerseList.Count() > 1)
+            {
+                var lastVerse = VerseList.LastOrDefault();
+                reference = $"{reference}-{lastVerse?.verse}";
+            }
+
+            return reference;
+        }
+
         private string _format;
         public string Format
         {
-            get 
-            { 
+            get
+            {
                 _format = (string.IsNullOrWhiteSpace(_format) ? "Default" : _format);
                 return _format;
             }
@@ -55,6 +71,8 @@ namespace DailyVerse.Domain
         public bool LargeSize { get; set; }
         public string TextSize { get; set; }
         public string ReferenceTextSize { get; set; }
+        public string Translation { get; set; }
+
     }
 
     public class VerseViewModel

@@ -47,7 +47,6 @@ body {
     font-family: Consolas, 'Courier New', Courier, monospace;
     font-size: 12pt;
     color: black;
-    font-weight: bold;
 }
 .manuscript .verse-title, .manuscript .verse-number {
     display: none;

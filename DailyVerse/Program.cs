@@ -1,5 +1,4 @@
 using DailyVerse.Service;
-using Service;
 
 public class Program
 {

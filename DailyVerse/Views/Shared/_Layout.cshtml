@@ -26,6 +26,7 @@
                         <li>@Html.ActionLink("Verse Of the Day", "votd", "Home")</li>
                         <li>@Html.ActionLink("Random", "random", "Home")</li>
                         <li>@Html.ActionLink("Passage", "passage", "Home")</li>
+                        <li>@Html.ActionLink("Copyrights", "copyright", "Home")</li>
                     </ul>
                 </div>
             </div>
@@ -34,8 +35,9 @@
 
     <div class="container body-content">
         @RenderBody()
-        <footer style="padding-top: 5px;">
+        <footer style="padding-top: 15px;">
             <p>&copy; 2019 - <a href="http://labs.bible.org">Bible.org Labs</a></p>
+            <p>&copy; 2001 - <a href="http://esv.org">ESV Bible</a>.  <a asp-action="copyright" asp-controller="home">Copyright.</a></p>
         </footer>
     </div>
 
