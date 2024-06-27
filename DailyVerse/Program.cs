@@ -21,6 +21,9 @@ public class Program
         builder.Services.AddScoped<NetBibleVersesService>();
         builder.Services.AddScoped<EsvVerseService>();
 
+        // Add Razor Pages and enable runtime compilation for Razor views
+        builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+
         var config = builder.Configuration;
         //config.AddJsonFile("keys.json", optional: true, reloadOnChange: false);
         config.AddEnvironmentVariables();
