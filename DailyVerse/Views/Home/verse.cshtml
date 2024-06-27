@@ -25,7 +25,11 @@
             {
                 <span class="verse"><sup class="verse-number">@verse.verse</sup>@verse.text</span>
             }
-            <span>  -@Model.Reference</span>
+            <span>  -@Model.Reference (@Model.Translation)</span>
+        </div>
+
+        <div class="chapper-reference" style="margin-top:6px;">
+            <a href="/home/passage/@Model.BookChapter">This Chapter</a>
         </div>
     }
 </div>

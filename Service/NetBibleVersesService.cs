@@ -41,12 +41,11 @@ namespace DailyVerse.Service
                     var v = await response.Content.ReadAsStringAsync();
                     verses = JsonConvert.DeserializeObject<List<VerseViewModel>>(v);
 
-                    if (removeFormatting)
+                    foreach (var verse in verses)
                     {
-                        foreach (var verse in verses)
-                        {
-                            verse.text = verse.text.Replace("<b>", "").Replace("</b>", "");
-                        }
+                        verse.bookname = verse.bookname;
+                        verse.chapter = verse.chapter;
+                        verse.text = (removeFormatting) ? verse.text.Replace("<b>", "").Replace("</b>", "") : verse.text;
                     }
                 }
             }

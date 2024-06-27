@@ -48,7 +48,8 @@ public class EsvVerseService : IVerseProvider
         if (response.IsSuccessStatusCode)
         {
             string esvPassageJson = await response.Content.ReadAsStringAsync();
-            EsvPassage esvPassage = JsonConvert.DeserializeObject<EsvPassage>(esvPassageJson);
+            EsvPassage esvPassage = JsonConvert.DeserializeObject<EsvPassage>(esvPassageJson) ?? new EsvPassage();
+
             _logger.LogDebug($"Request to ESV API succeeded with status code {response.StatusCode}");
 
             return ConvertEsvPassageToPassageViewModel(esvPassage);
@@ -103,16 +104,21 @@ public class EsvVerseService : IVerseProvider
         };
 
         // Split passage into verses
-        var verses = passage.RawPassageText?.Split("[");
+        var verses = passage.RawPassageText?.Replace("(ESV)", "").Split("[");
         var verseList = new List<VerseViewModel>();
         
         // Get book name from first verse
         var reference = verses[0].Replace("[", "").Replace("]", "").Trim();
-        //var bookname = Regex.Replace(reference, @"(\d*:*\d+)$", "").Trim();
-        var booknameRegex = new Regex(@"^\d+\s+(\w+)");
-        var booknameMatch = booknameRegex.Match(reference);
-        var bookname = booknameMatch.Groups[1].Value;
 
+        // Get the book and chapter from reference, but allow for titles such as 'John', '2 Peter', '3 John', etc.
+        var bookname = reference.Split(" ")[0];
+        var chapter = reference.Split(":")[0].Split(" ")[1];
+        if (bookname.StartsWith("1 ") || bookname.StartsWith("2 ") || bookname.StartsWith("3 "))
+        {
+            bookname = $"{reference.Substring(0, 1)} {reference.Split(" ")[1]}"; 
+            chapter = reference.Split(":")[0].Split(" ")[0];
+        }  
+        
         // For each verse, create a VerseViewModel object and add to list
         int i = 0;
         foreach (var passageText in verses.ToList())
@@ -128,6 +134,7 @@ public class EsvVerseService : IVerseProvider
                     verseList.Add(new VerseViewModel
                     {
                         bookname = bookname,
+                        chapter = chapter,
                         verse = verseParts[0].Replace("[", "").Replace("]", "").Trim(),
                         text = verseParts[1].Trim()
                     });

@@ -16,6 +16,7 @@ namespace DailyVerse.Domain
         public string Chapter => VerseList?.FirstOrDefault()?.chapter;
         public string FirstVerse => VerseList?.FirstOrDefault()?.verse;
         public string LastVerse => (VerseList.Count() > 0) ? VerseList?.LastOrDefault()?.verse : string.Empty;
+        public string BookChapter => $"{BookName} {Chapter}";
         public string Reference { get; set; }
 
         public bool Error { get; set; }

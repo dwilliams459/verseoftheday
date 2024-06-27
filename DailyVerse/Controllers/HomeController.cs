@@ -72,7 +72,7 @@ namespace DailyVerse.Controllers
 
         [HttpGet("/passage/{passage}")]
         [HttpGet("/home/passage/{passage}")]
-        public async Task<IActionResult> passage(string passage, string format = "")
+        public async Task<IActionResult> passage(string passage, [FromQuery] string format = "")
         {
             return View("passage", await GetPassage(passage, format));
         }
